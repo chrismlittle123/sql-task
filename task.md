@@ -9,10 +9,10 @@ This can be done however you feel is appropriate, use any libraries you feel are
 
 ## Part 2
 
-Now the data has been transformed to make it easier to store, some of the reports need to be updated. Please provide SQL queries that can:
+Now the data has been transformed to make it easier to store, some of the reports need to be updated. Please provide SQL queries that can provide:
 
 1) The total number of orders for each customer
-2) Provide the most recent order for each customer
+2) The most recent order for each customer
 3) For the past week, which customers have provided us with the most value
 
 ## Part 3
