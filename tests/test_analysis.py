@@ -6,8 +6,8 @@ import sys
 # Add project root to Python path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from src.analysis import OrderAnalysis
-from src.transform import DataTransformer
+from sqlite_analysis import OrderAnalysis
+from sqlite_transform import DataTransformer
 
 
 def test_total_orders_by_customer(setup_raw_data, transformer, analysis, db_cursor):

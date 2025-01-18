@@ -9,8 +9,8 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from src.analysis import OrderAnalysis
-from src.transform import DataTransformer
+from sqlite_analysis import OrderAnalysis
+from sqlite_transform import DataTransformer
 
 
 @pytest.fixture
