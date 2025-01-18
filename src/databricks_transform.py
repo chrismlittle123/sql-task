@@ -10,7 +10,9 @@ from src.databricks_connection import DatabricksConnection
 class DatabricksTransformer:
     def __init__(self):
         self.connection = DatabricksConnection()
-        self.sql_dir = os.path.join(os.path.dirname(__file__), "sql", "transform")
+        self.sql_dir = os.path.join(
+            os.path.dirname(__file__), "databricks_sql", "transform"
+        )
 
     def execute_sql_from_file(self, filename: str) -> None:
         """Execute a SQL file using Databricks SQL"""
