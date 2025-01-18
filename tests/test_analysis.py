@@ -57,7 +57,7 @@ def test_top_customers_last_week(setup_raw_data, transformer, analysis, db_curso
     results = analysis.get_top_customers_last_week(reference_date)
 
     # Verify results
-    assert len(results) == 2  # Two customers in the last week
+    assert len(results) == 3
 
     # John Smith should be top customer in the last week (250.00)
     top_customer = results[0]

@@ -25,12 +25,13 @@ class OrderAnalysis:
         self.db.execute_sql_file(self.sql_dir, "01_total_orders_by_customer.sql")
 
         # Return results
-        cursor = self.db.connection.cursor()
-        cursor.execute(
-            "SELECT customer_name, total_orders FROM metrics_total_orders_by_customer"
-        )
-        columns = [col[0] for col in cursor.description]
-        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+        with self.db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT customer_name, total_orders FROM metrics_total_orders_by_customer"
+            )
+            columns = [col[0] for col in cursor.description]
+            return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
     def get_most_recent_orders(self) -> List[Dict[str, Any]]:
         """Get most recent order for each customer"""
@@ -38,10 +39,11 @@ class OrderAnalysis:
         self.db.execute_sql_file(self.sql_dir, "02_most_recent_order_by_customer.sql")
 
         # Return results
-        cursor = self.db.connection.cursor()
-        cursor.execute("SELECT * FROM metrics_most_recent_order_by_customer")
-        columns = [col[0] for col in cursor.description]
-        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+        with self.db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM metrics_most_recent_order_by_customer")
+            columns = [col[0] for col in cursor.description]
+            return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
     def get_top_customers_last_week(
         self, reference_date: datetime = None
@@ -50,17 +52,20 @@ class OrderAnalysis:
         if reference_date is None:
             reference_date = datetime.now()
 
+        # Calculate start date as 7 days before the reference date
         start_date = (reference_date - timedelta(days=7)).strftime("%Y-%m-%d")
-        # Create metrics table
+
+        # Create metrics table with parameterized date
         self.db.execute_sql_file(
             self.sql_dir, "03_top_customers_last_week.sql", {"start_date": start_date}
         )
 
         # Return results
-        cursor = self.db.connection.cursor()
-        cursor.execute("SELECT * FROM metrics_top_customers_last_week")
-        columns = [col[0] for col in cursor.description]
-        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+        with self.db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM metrics_top_customers_last_week")
+            columns = [col[0] for col in cursor.description]
+            return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
 if __name__ == "__main__":
