@@ -6,7 +6,7 @@ from datetime import datetime
 def get_sql_path(filename):
     """Helper to get the full path to SQL files"""
     return os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "src", "sql", filename
+        os.path.dirname(os.path.dirname(__file__)), "src", "sql", "transform", filename
     )
 
 
