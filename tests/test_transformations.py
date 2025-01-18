@@ -72,7 +72,7 @@ def test_populate_dimension_tables(setup_raw_data, execute_sql_file, db_cursor):
         "Jane Smith",
         "John Doe",
         "John Smith",
-    ]  # Three unique customers
+    ]
 
     # Verify product data
     db_cursor.execute("SELECT product_name FROM dim_products ORDER BY product_name")

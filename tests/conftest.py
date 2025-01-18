@@ -68,7 +68,7 @@ def execute_sql_file(db_connection):
         cursor = db_connection.cursor()
         with open(file_path, "r") as f:
             sql = f.read()
-            cursor.executescript(sql)  # Use executescript to handle multiple statements
+            cursor.executescript(sql)
         db_connection.commit()
 
     return _execute_sql_file
