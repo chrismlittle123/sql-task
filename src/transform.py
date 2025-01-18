@@ -5,17 +5,15 @@ def create_star_schema():
     conn = sqlite3.connect("data/application.db")
     cursor = conn.cursor()
 
-    cursor.execute("ALTER TABLE raw_orders RENAME COLUMN product_id TO product_name")
-
     cursor.execute(
         """
-        UPDATE raw_orders
-        SET product_name = 'fast_track'
-        WHERE product_name = 'fast-track'
+        CREATE TABLE IF NOT EXISTS cleaned_orders AS
+        SELECT *,
+            CASE WHEN product_id = 'fast-track' THEN 'fast_track' ELSE product_id END AS product_name
+        FROM raw_orders
         """
     )
 
-    # Create dimension tables
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS dim_customers (
@@ -63,16 +61,16 @@ def create_star_schema():
         """
     )
 
-    # Populate dimension tables from raw data
+    # Populate dimension tables from cleaned data
     cursor.execute(
-        "INSERT OR IGNORE INTO dim_customers (customer_name) SELECT DISTINCT customer_name FROM raw_orders"
+        "INSERT OR IGNORE INTO dim_customers (customer_name) SELECT DISTINCT customer_name FROM cleaned_orders"
     )
 
     cursor.execute(
         """
         INSERT OR IGNORE INTO dim_products (product_name) 
         SELECT DISTINCT product_name 
-        FROM raw_orders 
+        FROM cleaned_orders 
         """
     )
 
@@ -84,7 +82,7 @@ def create_star_schema():
             CAST(strftime('%Y', order_date) AS INTEGER),
             CAST(strftime('%m', order_date) AS INTEGER),
             CAST(strftime('%d', order_date) AS INTEGER)
-        FROM raw_orders
+        FROM cleaned_orders
         """
     )
 
@@ -101,7 +99,7 @@ def create_star_schema():
             d.date_id,
             r.price,
             r.passenger_count
-        FROM raw_orders r
+        FROM cleaned_orders r
         JOIN dim_customers c ON r.customer_name = c.customer_name
         JOIN dim_products p ON r.product_name = p.product_name
         JOIN dim_dates d ON r.order_date = d.full_date
