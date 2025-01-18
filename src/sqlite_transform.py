@@ -6,13 +6,15 @@ import sys
 if __name__ == "__main__":
     sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from sqlite_database import Database
+from src.sqlite_database import Database
 
 
 class DataTransformer:
     def __init__(self, db_path: str = "data/application.db"):
         self.db = Database(db_path)
-        self.sql_dir = os.path.join(os.path.dirname(__file__), "sql", "transform")
+        self.sql_dir = os.path.join(
+            os.path.dirname(__file__), "sqlite_sql", "transform"
+        )
 
     def set_connection(self, connection):
         """Set a specific connection (used for testing)"""

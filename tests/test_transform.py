@@ -5,13 +5,15 @@ import sys
 # Add project root to Python path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from sqlite_transform import DataTransformer
-
 
 def get_sql_path(filename):
     """Helper to get the full path to SQL files"""
     return os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "src", "sql", "transform", filename
+        os.path.dirname(os.path.dirname(__file__)),
+        "src",
+        "sqlite_sql",
+        "transform",
+        filename,
     )
 
 
@@ -26,7 +28,7 @@ def test_create_cleaned_orders(setup_raw_data, execute_sql_file, db_cursor, sql_
     assert len(rows) == 4  # Four records in test data
     # Verify fast-track transformation for both records
     db_cursor.execute(
-        "SELECT product_name FROM cleaned_orders WHERE order_id IN ('ORD002', 'ORD004')"
+        "SELECT product_name FROM cleaned_orders WHERE order_id IN (102, 104)"
     )
     product_names = db_cursor.fetchall()
     assert len(product_names) == 2
@@ -126,7 +128,7 @@ def test_create_and_populate_fact_table(
 
     assert len(rows) == 4
     assert rows[0][0] == 101  # First order is lounge
-    assert rows[3][0] == 103  # Last order is fast_track
+    assert rows[3][0] == 104  # Last order is fast_track
 
     # Check all customers exist
     customer_names = [row[1] for row in rows]

@@ -9,8 +9,8 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from sqlite_analysis import OrderAnalysis
-from sqlite_transform import DataTransformer
+from src.sqlite_analysis import OrderAnalysis
+from src.sqlite_transform import DataTransformer
 
 
 @pytest.fixture
@@ -72,7 +72,7 @@ def setup_raw_data(db_connection):
 @pytest.fixture
 def sql_dir():
     """Return the path to the SQL files directory"""
-    return os.path.join(os.path.dirname(os.path.dirname(__file__)), "src", "sql")
+    return os.path.join(os.path.dirname(os.path.dirname(__file__)), "src", "sqlite_sql")
 
 
 @pytest.fixture

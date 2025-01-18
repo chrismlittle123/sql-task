@@ -15,7 +15,7 @@ SELECT
     order_date,
     passenger_count,
     CASE 
-        WHEN product_id = 'fast-track' THEN 'fast_track' 
+        WHEN product_id IN ('fast-track', 'fast_track') THEN 'fast_track' 
         ELSE product_id 
     END AS product_name
 FROM 
