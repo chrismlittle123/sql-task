@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 
 
-def test_total_orders_by_customer(setup_raw_data, transformer, analysis):
+def test_total_orders_by_customer(setup_raw_data, transformer, analysis, db_cursor):
     """Test total orders by customer calculation"""
     # Transform the data
     transformer.transform_data()
@@ -11,11 +11,17 @@ def test_total_orders_by_customer(setup_raw_data, transformer, analysis):
 
     # Verify results
     assert len(results) == 3  # Three unique customers
+
+    # Verify table creation
+    db_cursor.execute("SELECT COUNT(*) FROM metrics_total_orders_by_customer")
+    assert db_cursor.fetchone()[0] == 3
+
+    # Find John Doe's orders
     john_doe_orders = next(r for r in results if r["customer_name"] == "John Doe")
     assert john_doe_orders["total_orders"] == 2  # John Doe has 2 orders
 
 
-def test_most_recent_orders(setup_raw_data, transformer, analysis):
+def test_most_recent_orders(setup_raw_data, transformer, analysis, db_cursor):
     """Test most recent order by customer"""
     # Transform the data
     transformer.transform_data()
@@ -24,12 +30,18 @@ def test_most_recent_orders(setup_raw_data, transformer, analysis):
 
     # Verify results
     assert len(results) == 3  # One result per customer
+
+    # Verify table creation
+    db_cursor.execute("SELECT COUNT(*) FROM metrics_most_recent_order_by_customer")
+    assert db_cursor.fetchone()[0] == 3
+
+    # Most recent order should be John Smith's
     most_recent = results[0]  # Results are ordered by date DESC
     assert most_recent["customer_name"] == "John Smith"
     assert most_recent["order_id"] == "ORD004"
 
 
-def test_top_customers_last_week(setup_raw_data, transformer, analysis):
+def test_top_customers_last_week(setup_raw_data, transformer, analysis, db_cursor):
     """Test top customers by value in last week"""
     # Transform the data
     transformer.transform_data()
@@ -37,6 +49,10 @@ def test_top_customers_last_week(setup_raw_data, transformer, analysis):
     # Use a reference date that includes our test data
     reference_date = datetime(2024, 3, 5)  # One day after our last test order
     results = analysis.get_top_customers_last_week(reference_date)
+
+    # Verify table creation
+    db_cursor.execute("SELECT COUNT(*) FROM metrics_top_customers_last_week")
+    assert db_cursor.fetchone()[0] == 3
 
     # All orders in test data are within last week
     assert len(results) == 3  # Three customers
