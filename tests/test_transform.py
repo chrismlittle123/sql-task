@@ -10,9 +10,9 @@ def get_sql_path(filename):
     )
 
 
-def test_create_cleaned_orders(setup_raw_data, execute_sql_file, db_cursor):
+def test_create_cleaned_orders(setup_raw_data, execute_sql_file, db_cursor, sql_dir):
     """Test creation of cleaned_orders table"""
-    execute_sql_file(get_sql_path("01_create_cleaned_orders.sql"))
+    execute_sql_file(os.path.join(sql_dir, "transform", "01_create_cleaned_orders.sql"))
 
     # Verify the structure and data
     db_cursor.execute("SELECT * FROM cleaned_orders")
@@ -25,19 +25,18 @@ def test_create_cleaned_orders(setup_raw_data, execute_sql_file, db_cursor):
     )
     product_names = db_cursor.fetchall()
     assert len(product_names) == 2
-    # One is 'fast-track' and one is 'fast_track' in the original data
     assert all(name[0] == "fast_track" for name in product_names)
 
 
-def test_create_dimension_tables(setup_raw_data, execute_sql_file, db_cursor):
+def test_create_dimension_tables(setup_raw_data, execute_sql_file, db_cursor, sql_dir):
     """Test creation of dimension tables"""
     # Set up cleaned_orders first
-    execute_sql_file(get_sql_path("01_create_cleaned_orders.sql"))
+    execute_sql_file(os.path.join(sql_dir, "transform", "01_create_cleaned_orders.sql"))
 
     # Create dimension tables
-    execute_sql_file(get_sql_path("02_create_dim_customers.sql"))
-    execute_sql_file(get_sql_path("03_create_dim_products.sql"))
-    execute_sql_file(get_sql_path("04_create_dim_dates.sql"))
+    execute_sql_file(os.path.join(sql_dir, "transform", "02_create_dim_customers.sql"))
+    execute_sql_file(os.path.join(sql_dir, "transform", "03_create_dim_products.sql"))
+    execute_sql_file(os.path.join(sql_dir, "transform", "04_create_dim_dates.sql"))
 
     # Verify table structures
     tables = [
@@ -52,27 +51,27 @@ def test_create_dimension_tables(setup_raw_data, execute_sql_file, db_cursor):
         assert set(columns) == set(expected_columns)  # Order doesn't matter
 
 
-def test_populate_dimension_tables(setup_raw_data, execute_sql_file, db_cursor):
+def test_populate_dimension_tables(
+    setup_raw_data, execute_sql_file, db_cursor, sql_dir
+):
     """Test population of dimension tables"""
     # Set up all required tables
-    execute_sql_file(get_sql_path("01_create_cleaned_orders.sql"))
-    execute_sql_file(get_sql_path("02_create_dim_customers.sql"))
-    execute_sql_file(get_sql_path("03_create_dim_products.sql"))
-    execute_sql_file(get_sql_path("04_create_dim_dates.sql"))
+    execute_sql_file(os.path.join(sql_dir, "transform", "01_create_cleaned_orders.sql"))
+    execute_sql_file(os.path.join(sql_dir, "transform", "02_create_dim_customers.sql"))
+    execute_sql_file(os.path.join(sql_dir, "transform", "03_create_dim_products.sql"))
+    execute_sql_file(os.path.join(sql_dir, "transform", "04_create_dim_dates.sql"))
 
     # Populate dimension tables
-    execute_sql_file(get_sql_path("06_populate_dim_customers.sql"))
-    execute_sql_file(get_sql_path("07_populate_dim_products.sql"))
-    execute_sql_file(get_sql_path("08_populate_dim_dates.sql"))
+    execute_sql_file(
+        os.path.join(sql_dir, "transform", "06_populate_dim_customers.sql")
+    )
+    execute_sql_file(os.path.join(sql_dir, "transform", "07_populate_dim_products.sql"))
+    execute_sql_file(os.path.join(sql_dir, "transform", "08_populate_dim_dates.sql"))
 
     # Verify customer data
     db_cursor.execute("SELECT customer_name FROM dim_customers ORDER BY customer_name")
     customers = [row[0] for row in db_cursor.fetchall()]
-    assert sorted(customers) == [
-        "Jane Smith",
-        "John Doe",
-        "John Smith",
-    ]
+    assert sorted(customers) == ["Jane Smith", "John Doe", "John Smith"]
 
     # Verify product data
     db_cursor.execute("SELECT product_name FROM dim_products ORDER BY product_name")
@@ -83,18 +82,25 @@ def test_populate_dimension_tables(setup_raw_data, execute_sql_file, db_cursor):
     assert len(products) == 3  # lounge, parking, fast_track
 
 
-def test_create_and_populate_fact_table(setup_raw_data, execute_sql_file, db_cursor):
+def test_create_and_populate_fact_table(
+    setup_raw_data, execute_sql_file, db_cursor, sql_dir
+):
     """Test creation and population of fact table"""
     # Set up all required tables and data
-    execute_sql_file(get_sql_path("01_create_cleaned_orders.sql"))
-    execute_sql_file(get_sql_path("02_create_dim_customers.sql"))
-    execute_sql_file(get_sql_path("03_create_dim_products.sql"))
-    execute_sql_file(get_sql_path("04_create_dim_dates.sql"))
-    execute_sql_file(get_sql_path("05_create_fact_orders.sql"))
-    execute_sql_file(get_sql_path("06_populate_dim_customers.sql"))
-    execute_sql_file(get_sql_path("07_populate_dim_products.sql"))
-    execute_sql_file(get_sql_path("08_populate_dim_dates.sql"))
-    execute_sql_file(get_sql_path("09_populate_fact_orders.sql"))
+    sql_files = [
+        "01_create_cleaned_orders.sql",
+        "02_create_dim_customers.sql",
+        "03_create_dim_products.sql",
+        "04_create_dim_dates.sql",
+        "05_create_fact_orders.sql",
+        "06_populate_dim_customers.sql",
+        "07_populate_dim_products.sql",
+        "08_populate_dim_dates.sql",
+        "09_populate_fact_orders.sql",
+    ]
+
+    for sql_file in sql_files:
+        execute_sql_file(os.path.join(sql_dir, "transform", sql_file))
 
     # Verify fact table data
     db_cursor.execute("SELECT COUNT(*) FROM fact_orders")
@@ -114,7 +120,6 @@ def test_create_and_populate_fact_table(setup_raw_data, execute_sql_file, db_cur
     rows = db_cursor.fetchall()
 
     assert len(rows) == 4
-    # Verify specific data points
     assert rows[0][0] == "ORD001"  # First order is lounge
     assert rows[3][0] == "ORD004"  # Last order is fast_track
 
@@ -128,6 +133,4 @@ def test_create_and_populate_fact_table(setup_raw_data, execute_sql_file, db_cur
     product_names = [row[2] for row in rows]
     assert "lounge" in product_names
     assert "parking" in product_names
-    assert (
-        sum(name == "fast_track" for name in product_names) == 2
-    )  # Two fast_track orders
+    assert sum(name == "fast_track" for name in product_names) == 2

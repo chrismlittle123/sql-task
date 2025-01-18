@@ -1,11 +1,11 @@
 import os
 from typing import List
-from database import Database
+from . import database
 
 
 class DataTransformer:
     def __init__(self, db_path: str = "data/application.db"):
-        self.db = Database(db_path)
+        self.db = database.Database(db_path)
         self.sql_dir = os.path.join(os.path.dirname(__file__), "sql", "transform")
 
     def set_connection(self, connection):

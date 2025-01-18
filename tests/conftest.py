@@ -2,6 +2,8 @@ import pytest
 import sqlite3
 import os
 from datetime import datetime, timedelta
+from src.analysis import OrderAnalysis
+from src.transform import DataTransformer
 
 
 @pytest.fixture
@@ -61,7 +63,13 @@ def setup_raw_data(db_connection):
 
 
 @pytest.fixture
-def execute_sql_file(db_connection):
+def sql_dir():
+    """Return the path to the SQL files directory"""
+    return os.path.join(os.path.dirname(os.path.dirname(__file__)), "src", "sql")
+
+
+@pytest.fixture
+def execute_sql_file(db_connection, sql_dir):
     """Helper function to execute SQL files"""
 
     def _execute_sql_file(file_path):
@@ -72,3 +80,19 @@ def execute_sql_file(db_connection):
         db_connection.commit()
 
     return _execute_sql_file
+
+
+@pytest.fixture
+def analysis(db_connection):
+    """Create analysis instance with test database"""
+    analysis = OrderAnalysis(":memory:")
+    analysis.set_connection(db_connection)
+    return analysis
+
+
+@pytest.fixture
+def transformer(db_connection):
+    """Create transformer instance with test database"""
+    transformer = DataTransformer(":memory:")
+    transformer.set_connection(db_connection)
+    return transformer

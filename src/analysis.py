@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 import os
 from typing import List, Dict, Any
-from database import Database
+from . import database
 
 
 class OrderAnalysis:
     def __init__(self, db_path: str = "data/application.db"):
-        self.db = Database(db_path)
+        self.db = database.Database(db_path)
         self.sql_dir = os.path.join(os.path.dirname(__file__), "sql", "analysis")
 
     def set_connection(self, connection):

@@ -1,29 +1,5 @@
 import pytest
 from datetime import datetime
-import os
-import sys
-
-# Add the project root directory to Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from src.analysis import OrderAnalysis
-from src.transform import DataTransformer
-
-
-@pytest.fixture
-def analysis(db_connection):
-    """Create analysis instance with test database"""
-    analysis = OrderAnalysis(":memory:")
-    analysis.set_connection(db_connection)
-    return analysis
-
-
-@pytest.fixture
-def transformer(db_connection):
-    """Create transformer instance with test database"""
-    transformer = DataTransformer(":memory:")
-    transformer.set_connection(db_connection)
-    return transformer
 
 
 def test_total_orders_by_customer(setup_raw_data, transformer, analysis):
