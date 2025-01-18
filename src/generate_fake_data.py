@@ -48,7 +48,7 @@ def generate_fake_orders(
 
 
 def save_data(df: pd.DataFrame, output_dir: str = "data") -> None:
-    """Save DataFrame to CSV and Parquet formats"""
+    """Save DataFrame to CSV format"""
 
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
@@ -57,11 +57,6 @@ def save_data(df: pd.DataFrame, output_dir: str = "data") -> None:
     csv_path = os.path.join(output_dir, "raw_orders.csv")
     df.to_csv(csv_path, index=False)
     print(f"Saved CSV to: {csv_path}")
-
-    # Save as Parquet
-    parquet_path = os.path.join(output_dir, "raw_orders.parquet")
-    df.to_parquet(parquet_path, index=False)
-    print(f"Saved Parquet to: {parquet_path}")
 
 
 def main():
