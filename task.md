@@ -19,6 +19,10 @@ Now the data has been transformed to make it easier to store, some of the report
 
 We currently manually upload this file from our supplier into S3 and run a copy command to get this table into redshift. But, they have a REST API we can get the same data from. How could this process be automated/improved using cloud services?
 
+ANSWER:
+
+1. Use AWS Lambda + scheduler (or a similar service, you could use a cron job) to trigger the API call, transform the raw data and store the data in S3, as parquet files.
+2. Use COPY command to load clean data into Redshift, also on a schedule/triggered when data is dumped in S3, perhaps even in the same lambda function.
 
 ## BONUS
 
