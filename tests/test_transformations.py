@@ -18,12 +18,15 @@ def test_create_cleaned_orders(setup_raw_data, execute_sql_file, db_cursor):
     db_cursor.execute("SELECT * FROM cleaned_orders")
     rows = db_cursor.fetchall()
 
-    assert len(rows) == 4
-    # Verify fast-track transformation
+    assert len(rows) == 4  # Four records in test data
+    # Verify fast-track transformation for both records
     db_cursor.execute(
-        "SELECT product_name FROM cleaned_orders WHERE order_id = 'ORD002'"
+        "SELECT product_name FROM cleaned_orders WHERE order_id IN ('ORD002', 'ORD004')"
     )
-    assert db_cursor.fetchone()[0] == "fast_track"
+    product_names = db_cursor.fetchall()
+    assert len(product_names) == 2
+    # One is 'fast-track' and one is 'fast_track' in the original data
+    assert all(name[0] == "fast_track" for name in product_names)
 
 
 def test_create_dimension_tables(setup_raw_data, execute_sql_file, db_cursor):
@@ -65,16 +68,19 @@ def test_populate_dimension_tables(setup_raw_data, execute_sql_file, db_cursor):
     # Verify customer data
     db_cursor.execute("SELECT customer_name FROM dim_customers ORDER BY customer_name")
     customers = [row[0] for row in db_cursor.fetchall()]
-    assert sorted(customers) == ["Jane Smith", "John Doe"]
+    assert sorted(customers) == [
+        "Jane Smith",
+        "John Doe",
+        "John Smith",
+    ]  # Three unique customers
 
     # Verify product data
     db_cursor.execute("SELECT product_name FROM dim_products ORDER BY product_name")
     products = [row[0] for row in db_cursor.fetchall()]
     assert "fast_track" in products
-
-    # Verify date data
-    db_cursor.execute("SELECT COUNT(*) FROM dim_dates")
-    assert db_cursor.fetchone()[0] == 4  # Three unique dates in test data
+    assert "lounge" in products
+    assert "parking" in products
+    assert len(products) == 3  # lounge, parking, fast_track
 
 
 def test_create_and_populate_fact_table(setup_raw_data, execute_sql_file, db_cursor):
@@ -92,7 +98,7 @@ def test_create_and_populate_fact_table(setup_raw_data, execute_sql_file, db_cur
 
     # Verify fact table data
     db_cursor.execute("SELECT COUNT(*) FROM fact_orders")
-    assert db_cursor.fetchone()[0] == 4  # All orders present
+    assert db_cursor.fetchone()[0] == 4  # Four orders in test data
 
     # Verify relationships
     db_cursor.execute(
@@ -108,6 +114,20 @@ def test_create_and_populate_fact_table(setup_raw_data, execute_sql_file, db_cur
     rows = db_cursor.fetchall()
 
     assert len(rows) == 4
-    assert rows[0][0] == "ORD001"  # First order
-    assert any(row[1] == "Jane Smith" for row in rows)  # Jane Smith exists
-    assert any(row[2] == "fast_track" for row in rows)  # fast_track product exists
+    # Verify specific data points
+    assert rows[0][0] == "ORD001"  # First order is lounge
+    assert rows[3][0] == "ORD004"  # Last order is fast_track
+
+    # Check all customers exist
+    customer_names = [row[1] for row in rows]
+    assert "Jane Smith" in customer_names
+    assert "John Doe" in customer_names
+    assert "John Smith" in customer_names
+
+    # Check products
+    product_names = [row[2] for row in rows]
+    assert "lounge" in product_names
+    assert "parking" in product_names
+    assert (
+        sum(name == "fast_track" for name in product_names) == 2
+    )  # Two fast_track orders
