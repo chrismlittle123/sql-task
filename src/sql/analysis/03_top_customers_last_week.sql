@@ -1,4 +1,4 @@
-CREATE TABLE metrics_top_customers_last_week AS
+CREATE TABLE IF NOT EXISTS metrics_top_customers_last_week AS
 SELECT 
     c.customer_name,
     SUM(f.price) as total_value,

@@ -1,4 +1,4 @@
-CREATE TABLE metrics_most_recent_order_by_customer AS
+CREATE TABLE IF NOT EXISTS metrics_most_recent_order_by_customer AS
 WITH RankedOrders AS (
     SELECT 
         c.customer_name,
