@@ -54,26 +54,6 @@ def test_top_customers_last_week(setup_raw_data, transformer, analysis, db_curso
     # Transform the data
     transformer.transform_data()
 
-    # First drop the metrics table if it exists
-    db_cursor.execute("DROP TABLE IF EXISTS metrics_top_customers_last_week")
-
-    # Create metrics table with our test data's date range
-    db_cursor.execute(
-        """
-    CREATE TABLE metrics_top_customers_last_week AS
-    SELECT 
-        c.customer_name,
-        SUM(f.price) as total_value,
-        COUNT(f.order_id) as number_of_orders
-    FROM fact_orders f
-    JOIN dim_customers c ON f.customer_id = c.customer_id
-    JOIN dim_dates d ON f.date_id = d.date_id
-    WHERE d.full_date >= '2024-03-01' AND d.full_date <= '2024-03-05'
-    GROUP BY c.customer_name
-    ORDER BY total_value DESC
-    """
-    )
-
     results = db_cursor.execute(
         """
         SELECT customer_name, total_value, number_of_orders
