@@ -1,115 +1,44 @@
 import sqlite3
+import os
+
+
+def execute_sql_file(cursor, file_path):
+    with open(file_path, "r") as sql_file:
+        sql = sql_file.read()
+        cursor.execute(sql)
 
 
 def create_star_schema():
     conn = sqlite3.connect("data/application.db")
     cursor = conn.cursor()
 
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS cleaned_orders AS
-        SELECT *,
-            CASE WHEN product_id = 'fast-track' THEN 'fast_track' ELSE product_id END AS product_name
-        FROM raw_orders
-        """
-    )
+    # Create SQL directory if it doesn't exist
+    sql_dir = os.path.join(os.path.dirname(__file__), "sql")
+    if not os.path.exists(sql_dir):
+        os.makedirs(sql_dir)
 
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS dim_customers (
-            customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            customer_name TEXT UNIQUE
-        )
-        """
-    )
+    # Execute each SQL file in order
+    sql_files = [
+        "01_create_cleaned_orders.sql",
+        "02_create_dim_customers.sql",
+        "03_create_dim_products.sql",
+        "04_create_dim_dates.sql",
+        "05_create_fact_orders.sql",
+        "06_populate_dim_customers.sql",
+        "07_populate_dim_products.sql",
+        "08_populate_dim_dates.sql",
+        "09_populate_fact_orders.sql",
+    ]
 
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS dim_products (
-            product_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            product_name TEXT UNIQUE
-        )
-        """
-    )
-
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS dim_dates (
-            date_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            full_date DATETIME,
-            year INTEGER,
-            month INTEGER,
-            day INTEGER
-        )
-        """
-    )
-
-    # Create fact table
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS fact_orders (
-            order_id TEXT PRIMARY KEY,
-            customer_id INTEGER,
-            product_id INTEGER,
-            date_id INTEGER,
-            price DECIMAL(10,2),
-            passenger_count INTEGER,
-            FOREIGN KEY (customer_id) REFERENCES dim_customers(customer_id),
-            FOREIGN KEY (product_id) REFERENCES dim_products(product_id),
-            FOREIGN KEY (date_id) REFERENCES dim_dates(date_id)
-        )
-        """
-    )
-
-    # Populate dimension tables from cleaned data
-    cursor.execute(
-        "INSERT OR IGNORE INTO dim_customers (customer_name) SELECT DISTINCT customer_name FROM cleaned_orders"
-    )
-
-    cursor.execute(
-        """
-        INSERT OR IGNORE INTO dim_products (product_name) 
-        SELECT DISTINCT product_name 
-        FROM cleaned_orders 
-        """
-    )
-
-    cursor.execute(
-        """
-        INSERT OR IGNORE INTO dim_dates (full_date, year, month, day)
-        SELECT DISTINCT 
-            order_date,
-            CAST(strftime('%Y', order_date) AS INTEGER),
-            CAST(strftime('%m', order_date) AS INTEGER),
-            CAST(strftime('%d', order_date) AS INTEGER)
-        FROM cleaned_orders
-        """
-    )
-
-    # Populate fact table
-    cursor.execute(
-        """
-        INSERT OR IGNORE INTO fact_orders (
-            order_id, customer_id, product_id, date_id, price, passenger_count
-        )
-        SELECT 
-            r.order_id,
-            c.customer_id,
-            p.product_id,
-            d.date_id,
-            r.price,
-            r.passenger_count
-        FROM cleaned_orders r
-        JOIN dim_customers c ON r.customer_name = c.customer_name
-        JOIN dim_products p ON r.product_name = p.product_name
-        JOIN dim_dates d ON r.order_date = d.full_date
-        """
-    )
+    for sql_file in sql_files:
+        file_path = os.path.join(sql_dir, sql_file)
+        execute_sql_file(cursor, file_path)
+        print(f"Executed {sql_file}")
 
     conn.commit()
 
-    # Print some statistics
-    print("Data transformation completed!")
+    # Print statistics
+    print("\nData transformation completed!")
     for table in ["dim_customers", "dim_products", "dim_dates", "fact_orders"]:
         cursor.execute(f"SELECT COUNT(*) FROM {table}")
         count = cursor.fetchone()[0]
