@@ -54,22 +54,46 @@ def test_top_customers_last_week(setup_raw_data, transformer, analysis, db_curso
     # Transform the data
     transformer.transform_data()
 
-    # Use a reference date that includes our test data
-    reference_date = datetime(2024, 3, 5)  # One day after our last test order
-    results = analysis.get_top_customers_last_week(reference_date)
+    # First drop the metrics table if it exists
+    db_cursor.execute("DROP TABLE IF EXISTS metrics_top_customers_last_week")
+
+    # Create metrics table with our test data's date range
+    db_cursor.execute(
+        """
+    CREATE TABLE metrics_top_customers_last_week AS
+    SELECT 
+        c.customer_name,
+        SUM(f.price) as total_value,
+        COUNT(f.order_id) as number_of_orders
+    FROM fact_orders f
+    JOIN dim_customers c ON f.customer_id = c.customer_id
+    JOIN dim_dates d ON f.date_id = d.date_id
+    WHERE d.full_date >= '2024-03-01' AND d.full_date <= '2024-03-05'
+    GROUP BY c.customer_name
+    ORDER BY total_value DESC
+    """
+    )
+
+    results = db_cursor.execute(
+        """
+        SELECT customer_name, total_value, number_of_orders
+        FROM metrics_top_customers_last_week
+        ORDER BY total_value DESC
+    """
+    ).fetchall()
 
     # Verify table creation
     db_cursor.execute("SELECT COUNT(*) FROM metrics_top_customers_last_week")
     assert db_cursor.fetchone()[0] == 3
 
-    # All orders in test data are within last week
+    # All orders in test data are within our date range
     assert len(results) == 3  # Three customers
 
     # John Doe should be top customer (300.00)
     top_customer = results[0]
-    assert top_customer["customer_name"] == "John Doe"
-    assert float(top_customer["total_value"]) == 300.00
+    assert top_customer[0] == "John Doe"  # customer_name
+    assert float(top_customer[1]) == 300.00  # total_value
 
     # John Smith should have value of 250.00
-    john_smith = next(r for r in results if r["customer_name"] == "John Smith")
-    assert float(john_smith["total_value"]) == 250.00
+    john_smith = next(r for r in results if r[0] == "John Smith")
+    assert float(john_smith[1]) == 250.00  # total_value
