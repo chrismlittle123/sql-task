@@ -18,3 +18,8 @@ Now the data has been transformed to make it easier to store, some of the report
 ## Part 3
 
 We currently manually upload this file from our supplier into S3 and run a copy command to get this table into redshift. But, they have a REST API we can get the same data from. How could this process be automated/improved using cloud services?
+
+
+## BONUS
+
+Build an API that can generate fake data for the raw_orders table. Build an ETL pipeline using Databricks to get the normalised data into a Databricks SQL warehouse. Create a dashboard using Databricks SQL dashboards to visualise the 3 metrics (Part 2).
