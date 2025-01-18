@@ -52,12 +52,12 @@ def create_star_schema():
         CREATE TABLE IF NOT EXISTS fact_orders (
             order_id TEXT PRIMARY KEY,
             customer_id INTEGER,
-            product_name TEXT,
+            product_id INTEGER,
             date_id INTEGER,
             price DECIMAL(10,2),
             passenger_count INTEGER,
             FOREIGN KEY (customer_id) REFERENCES dim_customers(customer_id),
-            FOREIGN KEY (product_name) REFERENCES dim_products(product_name),
+            FOREIGN KEY (product_id) REFERENCES dim_products(product_id),
             FOREIGN KEY (date_id) REFERENCES dim_dates(date_id)
         )
         """
@@ -92,17 +92,18 @@ def create_star_schema():
     cursor.execute(
         """
         INSERT OR IGNORE INTO fact_orders (
-            order_id, customer_id, product_name, date_id, price, passenger_count
+            order_id, customer_id, product_id, date_id, price, passenger_count
         )
         SELECT 
             r.order_id,
             c.customer_id,
-            r.product_name,
+            p.product_id,
             d.date_id,
             r.price,
             r.passenger_count
         FROM raw_orders r
         JOIN dim_customers c ON r.customer_name = c.customer_name
+        JOIN dim_products p ON r.product_name = p.product_name
         JOIN dim_dates d ON r.order_date = d.full_date
         """
     )
