@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS fact_orders (
-    order_id TEXT PRIMARY KEY,
+    order_id INTEGER PRIMARY KEY,
     customer_id INTEGER,
     product_id INTEGER,
     date_id INTEGER,

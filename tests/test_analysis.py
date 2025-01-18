@@ -46,7 +46,7 @@ def test_most_recent_orders(setup_raw_data, transformer, analysis, db_cursor):
     # Most recent order should be John Doe's (2023-12-12)
     most_recent = results[0]  # Results are ordered by date DESC
     assert most_recent["customer_name"] == "John Doe"
-    assert most_recent["order_id"] == "ORD001"
+    assert most_recent["order_id"] == 101
     assert most_recent["order_date"].startswith("2023-12-12")
 
 

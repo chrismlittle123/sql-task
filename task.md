@@ -37,3 +37,5 @@ ANSWER:
 ## BONUS
 
 Generate fake data for the raw_orders table. Build an ETL pipeline using Databricks to get the normalised data into a Databricks SQL warehouse. Create a pubilc dashboard using Databricks SQL dashboards to visualise the 3 metrics (in Part 2).
+
+Put everything in a streamlit app.

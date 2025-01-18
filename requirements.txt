@@ -1,2 +1,3 @@
-pytest==8.0.0
-pandas==2.2.0
+faker==22.6.0
+pandas==2.1.4
+pyarrow==14.0.1  # Required for parquet support

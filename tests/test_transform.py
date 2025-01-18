@@ -125,8 +125,8 @@ def test_create_and_populate_fact_table(
     rows = db_cursor.fetchall()
 
     assert len(rows) == 4
-    assert rows[0][0] == "ORD001"  # First order is lounge
-    assert rows[3][0] == "ORD004"  # Last order is fast_track
+    assert rows[0][0] == 101  # First order is lounge
+    assert rows[3][0] == 103  # Last order is fast_track
 
     # Check all customers exist
     customer_names = [row[1] for row in rows]

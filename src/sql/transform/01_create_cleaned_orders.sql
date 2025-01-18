@@ -1,4 +1,11 @@
-CREATE TABLE IF NOT EXISTS cleaned_orders AS
+CREATE TABLE IF NOT EXISTS cleaned_orders (
+    order_id INTEGER PRIMARY KEY,
+    customer_name TEXT,
+    price DECIMAL(10,2),
+    order_date DATE,
+    passenger_count INTEGER,
+    product_name TEXT
+) AS
 SELECT 
     customer_name,
     order_id,

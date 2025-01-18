@@ -3,10 +3,10 @@ WITH RankedOrders AS (
     SELECT 
         c.customer_name,
         f.order_id,
-        d.full_date as order_date,
+        d.full_date AS order_date,
         p.product_name,
         f.price,
-        ROW_NUMBER() OVER (PARTITION BY c.customer_name ORDER BY d.full_date DESC) as rn
+        ROW_NUMBER() OVER (PARTITION BY c.customer_name ORDER BY d.full_date DESC) AS rn
     FROM fact_orders f
     JOIN dim_customers c ON f.customer_id = c.customer_id
     JOIN dim_products p ON f.product_id = p.product_id

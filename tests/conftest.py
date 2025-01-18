@@ -50,10 +50,10 @@ def setup_raw_data(db_connection):
 
     # Insert test data
     test_data = [
-        ("John Doe", "ORD001", 100.00, "2023-12-12 10:00:00", "lounge", 2),
-        ("Jane Smith", "ORD002", 150.00, "2023-12-10 11:00:00", "fast-track", 1),
-        ("John Doe", "ORD003", 200.00, "2023-12-08 12:00:00", "parking", 3),
-        ("John Smith", "ORD004", 250.00, "2023-12-06 12:00:00", "fast_track", 6),
+        ("John Doe", 101, 100.00, "2023-12-12", "lounge", 2),
+        ("Jane Smith", 102, 150.00, "2023-12-10", "fast-track", 1),
+        ("John Doe", 103, 200.00, "2023-12-08", "parking", 3),
+        ("John Smith", 104, 250.00, "2023-12-06", "fast_track", 6),
     ]
 
     cursor.executemany(
