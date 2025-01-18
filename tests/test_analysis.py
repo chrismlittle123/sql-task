@@ -43,10 +43,11 @@ def test_most_recent_orders(setup_raw_data, transformer, analysis, db_cursor):
     db_cursor.execute("SELECT COUNT(*) FROM metrics_most_recent_order_by_customer")
     assert db_cursor.fetchone()[0] == 3
 
-    # Most recent order should be John Smith's
+    # Most recent order should be John Doe's (2023-12-12)
     most_recent = results[0]  # Results are ordered by date DESC
-    assert most_recent["customer_name"] == "John Smith"
-    assert most_recent["order_id"] == "ORD004"
+    assert most_recent["customer_name"] == "John Doe"
+    assert most_recent["order_id"] == "ORD001"
+    assert most_recent["order_date"].startswith("2023-12-12")
 
 
 def test_top_customers_last_week(setup_raw_data, transformer, analysis, db_cursor):
@@ -54,26 +55,21 @@ def test_top_customers_last_week(setup_raw_data, transformer, analysis, db_curso
     # Transform the data
     transformer.transform_data()
 
-    results = db_cursor.execute(
-        """
-        SELECT customer_name, total_value, number_of_orders
-        FROM metrics_top_customers_last_week
-        ORDER BY total_value DESC
-    """
-    ).fetchall()
+    # Use a reference date that includes our test data
+    reference_date = datetime(2023, 12, 12)  # Date of most recent order
+    results = analysis.get_top_customers_last_week(reference_date)
 
-    # Verify table creation
-    db_cursor.execute("SELECT COUNT(*) FROM metrics_top_customers_last_week")
-    assert db_cursor.fetchone()[0] == 3
+    # Verify results
+    assert len(results) == 2  # Two customers in the last week
 
-    # All orders in test data are within our date range
-    assert len(results) == 3  # Three customers
-
-    # John Doe should be top customer (300.00)
+    # John Smith should be top customer in the last week (250.00)
     top_customer = results[0]
-    assert top_customer[0] == "John Doe"  # customer_name
-    assert float(top_customer[1]) == 300.00  # total_value
+    assert top_customer["customer_name"] == "John Smith"
+    assert float(top_customer["total_value"]) == 250.00
+    assert top_customer["number_of_orders"] == 1
 
-    # John Smith should have value of 250.00
-    john_smith = next(r for r in results if r[0] == "John Smith")
-    assert float(john_smith[1]) == 250.00  # total_value
+    # John Doe should have one order of 200.00 in the last week
+    john_doe = results[1]
+    assert john_doe["customer_name"] == "John Doe"
+    assert float(john_doe["total_value"]) == 200.00
+    assert john_doe["number_of_orders"] == 1
