@@ -1,12 +1,18 @@
 from datetime import datetime, timedelta
 import os
 from typing import List, Dict, Any
-from . import database
+import sys
+
+# Add project root to Python path when running directly
+if __name__ == "__main__":
+    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from src.database import Database
 
 
 class OrderAnalysis:
     def __init__(self, db_path: str = "data/application.db"):
-        self.db = database.Database(db_path)
+        self.db = Database(db_path)
         self.sql_dir = os.path.join(os.path.dirname(__file__), "sql", "analysis")
 
     def set_connection(self, connection):

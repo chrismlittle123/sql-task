@@ -1,7 +1,14 @@
 import pytest
 import sqlite3
 import os
+import sys
 from datetime import datetime, timedelta
+
+# Add project root to Python path
+project_root = os.path.dirname(os.path.dirname(__file__))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
 from src.analysis import OrderAnalysis
 from src.transform import DataTransformer
 
