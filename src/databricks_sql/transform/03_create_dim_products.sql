@@ -1,4 +1,7 @@
-CREATE TABLE IF NOT EXISTS dim_products (
-    product_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    product_name TEXT UNIQUE
-); 
+-- Create products dimension table
+DROP TABLE IF EXISTS dim_products;
+
+CREATE TABLE dim_products (
+    product_id INT GENERATED ALWAYS AS IDENTITY,
+    product_name STRING
+) USING DELTA; 

@@ -1,4 +1,8 @@
-CREATE TABLE IF NOT EXISTS metrics_most_recent_order_by_customer AS
+-- Create most recent orders by customer metrics
+DROP TABLE IF EXISTS metrics_most_recent_order_by_customer;
+
+CREATE OR REPLACE TABLE metrics_most_recent_order_by_customer
+USING DELTA AS
 WITH RankedOrders AS (
     SELECT 
         c.customer_name,

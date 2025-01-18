@@ -1,4 +1,8 @@
-CREATE TABLE IF NOT EXISTS metrics_total_orders_by_customer AS
+-- Create total orders by customer metrics
+DROP TABLE IF EXISTS metrics_total_orders_by_customer;
+
+CREATE OR REPLACE TABLE metrics_total_orders_by_customer
+USING DELTA AS
 SELECT 
     c.customer_name,
     COUNT(f.order_id) AS total_orders

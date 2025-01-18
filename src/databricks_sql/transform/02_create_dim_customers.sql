@@ -1,4 +1,7 @@
-CREATE TABLE IF NOT EXISTS dim_customers (
-    customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    customer_name TEXT UNIQUE
-); 
+-- Create customers dimension table
+DROP TABLE IF EXISTS dim_customers;
+
+CREATE TABLE dim_customers (
+    customer_id INT GENERATED ALWAYS AS IDENTITY,
+    customer_name STRING
+) USING DELTA; 

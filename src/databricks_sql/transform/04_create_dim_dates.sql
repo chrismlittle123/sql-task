@@ -1,7 +1,10 @@
-CREATE TABLE IF NOT EXISTS dim_dates (
-    date_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    full_date DATETIME,
-    year INTEGER,
-    month INTEGER,
-    day INTEGER
-); 
+-- Create dates dimension table
+DROP TABLE IF EXISTS dim_dates;
+
+CREATE TABLE dim_dates (
+    date_id INT GENERATED ALWAYS AS IDENTITY,
+    full_date DATE,
+    year INT,
+    month INT,
+    day INT
+) USING DELTA; 

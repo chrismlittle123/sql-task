@@ -1,22 +1,26 @@
-CREATE TABLE IF NOT EXISTS cleaned_orders (
-    order_id INTEGER PRIMARY KEY,
-    customer_name TEXT,
+-- Drop if exists using Databricks syntax
+DROP TABLE IF EXISTS cleaned_orders;
+
+-- Create table using Databricks Delta format
+CREATE TABLE cleaned_orders (
+    order_id STRING,
+    customer_name STRING,
     price DECIMAL(10,2),
     order_date DATE,
-    passenger_count INTEGER,
-    product_name TEXT
-);
+    passenger_count INT,
+    product_name STRING
+) USING DELTA;
 
-INSERT INTO cleaned_orders (order_id, customer_name, price, order_date, passenger_count, product_name)
+-- Insert data using Databricks syntax
+INSERT INTO cleaned_orders
 SELECT 
     order_id,
     customer_name,
     price,
-    order_date,
+    CAST(order_date AS DATE),
     passenger_count,
     CASE 
         WHEN product_id = 'fast-track' THEN 'fast_track' 
         ELSE product_id 
     END AS product_name
-FROM 
-    raw_orders;
+FROM raw_orders;

@@ -1,14 +1,20 @@
-INSERT OR IGNORE INTO fact_orders (
-    order_id, customer_id, product_id, date_id, price, passenger_count
+-- Populate fact orders table
+INSERT INTO fact_orders (
+    order_id,
+    customer_id,
+    product_id,
+    date_id,
+    price,
+    passenger_count
 )
 SELECT 
-    r.order_id,
-    c.customer_id,
-    p.product_id,
-    d.date_id,
-    r.price,
-    r.passenger_count
-FROM cleaned_orders r
-JOIN dim_customers c ON r.customer_name = c.customer_name
-JOIN dim_products p ON r.product_name = p.product_name
-JOIN dim_dates d ON r.order_date = d.full_date; 
+    co.order_id,
+    dc.customer_id,
+    dp.product_id,
+    dd.date_id,
+    co.price,
+    co.passenger_count
+FROM cleaned_orders co
+JOIN dim_customers dc ON co.customer_name = dc.customer_name
+JOIN dim_products dp ON co.product_name = dp.product_name
+JOIN dim_dates dd ON co.order_date = dd.full_date; 
