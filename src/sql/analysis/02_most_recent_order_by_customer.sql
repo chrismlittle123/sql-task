@@ -1,3 +1,4 @@
+CREATE TABLE metrics_most_recent_order_by_customer AS
 WITH RankedOrders AS (
     SELECT 
         c.customer_name,
@@ -19,4 +20,4 @@ SELECT
     price
 FROM RankedOrders
 WHERE rn = 1
-ORDER BY order_date DESC; 
+ORDER BY order_date DESC;

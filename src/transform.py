@@ -1,6 +1,6 @@
 import os
 from typing import List
-from .database import Database
+from database import Database
 
 
 class DataTransformer:
@@ -28,3 +28,8 @@ class DataTransformer:
 
         for sql_file in sql_files:
             self.db.execute_sql_file(self.sql_dir, sql_file)
+
+
+if __name__ == "__main__":
+    transformer = DataTransformer()
+    transformer.transform_data()

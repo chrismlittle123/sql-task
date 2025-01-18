@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import os
 from typing import List, Dict, Any
-from .database import Database
+from database import Database
 
 
 class OrderAnalysis:
@@ -15,13 +15,11 @@ class OrderAnalysis:
 
     def get_total_orders_by_customer(self) -> List[Dict[str, Any]]:
         """Get total number of orders for each customer"""
-        return self.db.execute_sql_file(self.sql_dir, "01_total_orders_by_customer.sql")
+        self.db.execute_sql_file(self.sql_dir, "01_total_orders_by_customer.sql")
 
     def get_most_recent_orders(self) -> List[Dict[str, Any]]:
         """Get most recent order for each customer"""
-        return self.db.execute_sql_file(
-            self.sql_dir, "02_most_recent_order_by_customer.sql"
-        )
+        self.db.execute_sql_file(self.sql_dir, "02_most_recent_order_by_customer.sql")
 
     def get_top_customers_last_week(
         self, reference_date: datetime = None
@@ -31,6 +29,13 @@ class OrderAnalysis:
             reference_date = datetime.now()
 
         start_date = (reference_date - timedelta(days=7)).strftime("%Y-%m-%d")
-        return self.db.execute_sql_file(
+        self.db.execute_sql_file(
             self.sql_dir, "03_top_customers_last_week.sql", {"start_date": start_date}
         )
+
+
+if __name__ == "__main__":
+    analysis = OrderAnalysis()
+    analysis.get_total_orders_by_customer()
+    analysis.get_most_recent_orders()
+    analysis.get_top_customers_last_week()
