@@ -44,6 +44,7 @@ def setup_raw_data(db_connection):
         ("John Doe", "ORD001", 100.00, "2024-03-01 10:00:00", "PROD001", 2),
         ("Jane Smith", "ORD002", 150.00, "2024-03-02 11:00:00", "fast-track", 1),
         ("John Doe", "ORD003", 200.00, "2024-03-03 12:00:00", "PROD002", 3),
+        ("John Smith", "ORD004", 250.00, "2024-03-04 12:00:00", "fast_track", 6),
     ]
 
     cursor.executemany(
