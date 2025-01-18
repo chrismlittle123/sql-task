@@ -38,15 +38,22 @@ class Database:
             file_path = os.path.join(sql_dir, filename)
             with open(file_path, "r") as f:
                 sql = f.read()
-                cursor.execute(sql, params or {})
-                conn.commit()
 
-                try:
-                    rows = cursor.fetchall()
-                    return [dict(row) for row in rows]
-                except sqlite3.OperationalError:
-                    # No results to fetch (e.g., for CREATE/INSERT statements)
-                    return []
+            if params:
+                # If we have parameters, use normal execute
+                cursor.execute(sql, params)
+            else:
+                # For CREATE TABLE AS statements, use executescript
+                cursor.executescript(sql)
+
+            conn.commit()
+
+            try:
+                rows = cursor.fetchall()
+                return [dict(row) for row in rows]
+            except sqlite3.OperationalError:
+                # No results to fetch (e.g., for CREATE/INSERT statements)
+                return []
 
     def execute_sql(
         self, sql: str, params: Optional[Dict] = None

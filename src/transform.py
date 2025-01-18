@@ -33,7 +33,11 @@ class DataTransformer:
         ]
 
         for sql_file in sql_files:
-            self.db.execute_sql_file(self.sql_dir, sql_file)
+            # Read and execute each SQL file as a script
+            file_path = os.path.join(self.sql_dir, sql_file)
+            with open(file_path, "r") as f:
+                sql = f.read()
+            self.db.execute_sql_script(sql)
 
 
 if __name__ == "__main__":

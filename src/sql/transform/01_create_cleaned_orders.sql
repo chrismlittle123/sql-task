@@ -5,10 +5,12 @@ CREATE TABLE IF NOT EXISTS cleaned_orders (
     order_date DATE,
     passenger_count INTEGER,
     product_name TEXT
-) AS
+);
+
+INSERT INTO cleaned_orders (order_id, customer_name, price, order_date, passenger_count, product_name)
 SELECT 
-    customer_name,
     order_id,
+    customer_name,
     price,
     order_date,
     passenger_count,
@@ -17,4 +19,4 @@ SELECT
         ELSE product_id 
     END AS product_name
 FROM 
-    raw_orders; 
+    raw_orders;
