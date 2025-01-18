@@ -1,66 +1,47 @@
-from databricks.sdk.runtime import *
 import os
-from typing import List, Dict, Any
-from datetime import datetime, timedelta
-from pyspark.sql import SparkSession
-import pandas as pd
+from typing import List
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from src.databricks_connection import DatabricksConnection
 
 
 class DatabricksAnalysis:
     def __init__(self):
-        self.spark = SparkSession.builder.getOrCreate()
-        self.sql_dir = os.path.join(os.path.dirname(__file__), "sql", "analysis")
+        self.connection = DatabricksConnection()
+        self.sql_dir = os.path.join(
+            os.path.dirname(__file__), "databricks_sql", "analysis"
+        )
 
-    def execute_sql_from_file(
-        self, filename: str, params: Dict[str, Any] = None
-    ) -> pd.DataFrame:
-        """Execute a SQL file using Databricks SQL and return results as pandas DataFrame"""
+    def execute_sql_from_file(self, filename: str) -> None:
+        """Execute a SQL file using Databricks SQL"""
         file_path = os.path.join(self.sql_dir, filename)
         with open(file_path, "r") as f:
             sql = f.read()
 
-        # Replace parameters if provided
-        if params:
-            for key, value in params.items():
-                sql = sql.replace(f":{key}", f"'{value}'")
+        # Split SQL into separate statements
+        statements = sql.split(";")
 
-        # Execute SQL and convert to pandas
-        return self.spark.sql(sql).toPandas()
+        # Execute each non-empty statement
+        for statement in statements:
+            if statement.strip():
+                self.connection.execute_sql(statement)
 
-    def get_total_orders_by_customer(self) -> pd.DataFrame:
-        """Get total number of orders for each customer"""
-        return self.execute_sql_from_file("01_total_orders_by_customer.sql")
+    def get_analysis_results(self) -> None:
+        """Get analysis results"""
+        sql_files = [
+            "01_total_orders_by_customer.sql",
+            "02_most_recent_order_by_customer.sql",
+            "03_top_customers_last_week.sql",
+        ]
 
-    def get_most_recent_orders(self) -> pd.DataFrame:
-        """Get most recent order for each customer"""
-        return self.execute_sql_from_file("02_most_recent_order_by_customer.sql")
-
-    def get_top_customers_last_week(
-        self, reference_date: datetime = None
-    ) -> pd.DataFrame:
-        """Get customers who provided most value in the past week"""
-        if reference_date is None:
-            reference_date = datetime.now()
-
-        start_date = (reference_date - timedelta(days=7)).strftime("%Y-%m-%d")
-        return self.execute_sql_from_file(
-            "03_top_customers_last_week.sql", {"start_date": start_date}
-        )
-
-
-def display_analysis_results():
-    """Display all analysis results"""
-    analysis = DatabricksAnalysis()
-
-    print("\nTotal Orders by Customer:")
-    display(analysis.get_total_orders_by_customer())
-
-    print("\nMost Recent Orders:")
-    display(analysis.get_most_recent_orders())
-
-    print("\nTop Customers Last Week:")
-    display(analysis.get_top_customers_last_week())
+        for sql_file in sql_files:
+            print(f"Executing {sql_file}...")
+            self.execute_sql_from_file(sql_file)
+            print(f"Completed {sql_file}")
 
 
 if __name__ == "__main__":
-    display_analysis_results()
+    analysis = DatabricksAnalysis()
+    analysis.get_analysis_results()

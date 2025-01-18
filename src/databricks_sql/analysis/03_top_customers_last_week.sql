@@ -10,6 +10,6 @@ SELECT
 FROM fact_orders f
 JOIN dim_customers c ON f.customer_id = c.customer_id
 JOIN dim_dates d ON f.date_id = d.date_id
-WHERE d.full_date >= :start_date
+WHERE d.full_date >= '2023-12-03'
 GROUP BY c.customer_name
 ORDER BY total_value DESC;

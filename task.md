@@ -29,11 +29,6 @@ Assumptions:
 
 We currently manually upload this file from our supplier into S3 and run a copy command to get this table into redshift. But, they have a REST API we can get the same data from. How could this process be automated/improved using cloud services?
 
-ANSWER:
-
-1. Use AWS Lambda + scheduler (or a similar service, you could use a cron job) to trigger the API call, transform the raw data and store the data in S3, as parquet files.
-2. Use COPY command to load clean data into Redshift, also on a schedule/triggered when data is dumped in S3, perhaps even in the same lambda function.
-
 ## BONUS
 
 Generate fake data for the raw_orders table. Build an ETL pipeline using Databricks to get the normalised data into a Databricks SQL warehouse. Create a pubilc dashboard using Databricks SQL dashboards to visualise the 3 metrics (in Part 2).
